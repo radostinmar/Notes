@@ -8,7 +8,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.rmarinov.notes.ui.composables.AppBarState
 
 @Composable
 fun NotesNavGraph(
@@ -16,7 +15,7 @@ fun NotesNavGraph(
     navController: NavHostController = rememberNavController(),
     startDestination: String = NotesDestinations.NOTES_ROUTE,
     navigateToNote: (Long) -> Unit,
-    onComposing: (AppBarState) -> Unit
+    onComposing: (ScaffoldState) -> Unit
 ) {
     NavHost(
         navController = navController,

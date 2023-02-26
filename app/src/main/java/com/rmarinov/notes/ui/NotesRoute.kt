@@ -3,17 +3,16 @@ package com.rmarinov.notes.ui
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.LocalIndication
+import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -22,21 +21,23 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rmarinov.notes.R
 import com.rmarinov.notes.data.db.model.Note
-import com.rmarinov.notes.ui.composables.AppBarState
 
 @Composable
 fun NotesRoute(
-    onComposing: (AppBarState) -> Unit,
+    onComposing: (ScaffoldState) -> Unit,
     navigateToNote: (Long) -> Unit,
     notesViewModel: NotesViewModel = hiltViewModel()
 ) {
@@ -66,9 +67,9 @@ fun NotesRoute(
 
     LaunchedEffect(key1 = selectedNotes.size) {
         onComposing(
-            AppBarState(
-                title = appBarTitle,
-                actions = {
+            ScaffoldState(
+                appBarTitle = appBarTitle,
+                appBarActions = {
                     if (areNotesSelected) {
                         IconButton(onClick = { notesViewModel.onDeleteClicked(selectedNotes) }) {
                             Icon(
@@ -77,21 +78,33 @@ fun NotesRoute(
                             )
                         }
                     }
+                },
+                floatingActionButton = {
+                    FloatingActionButton(
+                        onClick = notesViewModel::onAddNoteClicked,
+                        containerColor = MaterialTheme.colorScheme.primary,
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Add,
+                            contentDescription = stringResource(R.string.add_note)
+                        )
+                    }
                 }
             )
         )
     }
 
     ConstraintLayout(modifier = Modifier.fillMaxSize()) {
-        val (list, button) = createRefs()
+        val (list, topFade, bottomFade) = createRefs()
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(16.dp),
+            contentPadding = PaddingValues(all = 12.dp),
             modifier = Modifier
                 .constrainAs(list) {
-                    start.linkTo(anchor = parent.start, margin = 16.dp)
-                    end.linkTo(anchor = parent.end, margin = 16.dp)
-                    top.linkTo(anchor = parent.top, margin = 16.dp)
-                    bottom.linkTo(anchor = button.top, margin = 16.dp)
+                    start.linkTo(anchor = parent.start)
+                    end.linkTo(anchor = parent.end)
+                    top.linkTo(anchor = parent.top)
+                    bottom.linkTo(anchor = parent.bottom)
                     width = Dimension.fillToConstraints
                     height = Dimension.fillToConstraints
                 }
@@ -106,19 +119,42 @@ fun NotesRoute(
                 )
             }
         }
-        Button(
-            onClick = { notesViewModel.onAddNoteClicked() },
-            modifier = Modifier.constrainAs(button) {
-                start.linkTo(anchor = parent.start, margin = 16.dp)
-                end.linkTo(anchor = parent.end, margin = 16.dp)
-                bottom.linkTo(anchor = parent.bottom, margin = 16.dp)
-                width = Dimension.fillToConstraints
-                height = Dimension.value(40.dp)
-            },
-            shape = RoundedCornerShape(size = 8.dp)
-        ) {
-            Text(text = stringResource(R.string.add_note))
-        }
+        Spacer(
+            Modifier
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            MaterialTheme.colorScheme.background,
+                            Color.Transparent
+                        )
+                    )
+                )
+                .constrainAs(topFade) {
+                    top.linkTo(parent.top)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                    width = Dimension.fillToConstraints
+                    height = Dimension.value(12.dp)
+                }
+        )
+        Spacer(
+            Modifier
+                .background(
+                    brush = Brush.verticalGradient(
+                        colors = listOf(
+                            Color.Transparent,
+                            MaterialTheme.colorScheme.background
+                        )
+                    )
+                )
+                .constrainAs(bottomFade) {
+                    bottom.linkTo(parent.bottom)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                    width = Dimension.fillToConstraints
+                    height = Dimension.value(12.dp)
+                }
+        )
     }
 }
 
@@ -164,6 +200,8 @@ fun NoteItem(
             text = note.title.takeIf { it.isNotBlank() }
                 ?: note.content.substringBefore("\n"),
             modifier = Modifier.padding(all = 16.dp),
+            maxLines = 5,
+            overflow = TextOverflow.Ellipsis,
             style = MaterialTheme.typography.headlineSmall
         )
     }

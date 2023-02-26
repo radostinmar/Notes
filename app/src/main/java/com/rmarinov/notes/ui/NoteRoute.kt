@@ -20,11 +20,10 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rmarinov.notes.R
-import com.rmarinov.notes.ui.composables.AppBarState
 
 @Composable
 fun NoteRoute(
-    onComposing: (AppBarState) -> Unit,
+    onComposing: (ScaffoldState) -> Unit,
     close: () -> Unit,
     selectedNoteId: Long,
     noteViewModel: NoteViewModel = hiltViewModel()
@@ -46,9 +45,9 @@ fun NoteRoute(
 
     LaunchedEffect(key1 = true) {
         onComposing(
-            AppBarState(
-                title = appBarTitle,
-                actions = {
+            ScaffoldState(
+                appBarTitle = appBarTitle,
+                appBarActions = {
                     IconButton(onClick = { noteViewModel.onDeleteClicked() }) {
                         Icon(
                             imageVector = Icons.Outlined.Delete,
