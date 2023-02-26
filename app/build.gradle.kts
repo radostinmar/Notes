@@ -32,6 +32,10 @@ android {
     }
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_1_8.toString()
+        freeCompilerArgs = freeCompilerArgs +
+                "-Xopt-in=androidx.compose.foundation.ExperimentalFoundationApi" +
+                "-Xopt-in=androidx.compose.material3.ExperimentalMaterial3Api" +
+                "-Xopt-in=androidx.compose.animation.ExperimentalAnimationApi"
     }
     buildFeatures {
         compose = true
@@ -47,12 +51,15 @@ android {
 }
 
 dependencies {
+    kapt(libs.androidx.hilt.compiler)
     kapt(libs.hilt.android.compiler)
     kapt(libs.room.compiler)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.livedata.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.hilt.work)
+    implementation(libs.androidx.work.runtime.ktx)
     implementation(libs.moshi)
     implementation(libs.moshi.kotlin)
     implementation(libs.hilt.android)
@@ -60,6 +67,7 @@ dependencies {
     implementation(libs.retrofit2.converter.moshi)
     implementation(libs.retrofit2)
     implementation(libs.room)
+    implementation(libs.room.runtime)
 
     // Compose
     implementation(platform(libs.androidx.compose.bom))
@@ -75,5 +83,6 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.test.ext.junit)
+    androidTestImplementation(libs.androidx.work.testing)
     testImplementation(libs.junit)
 }

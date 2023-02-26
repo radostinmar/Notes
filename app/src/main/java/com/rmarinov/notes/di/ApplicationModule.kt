@@ -2,6 +2,7 @@ package com.rmarinov.notes.di
 
 import android.content.Context
 import androidx.room.Room
+import androidx.work.WorkManager
 import com.rmarinov.notes.data.NotesDao
 import com.rmarinov.notes.data.db.NotesDatabase
 import com.squareup.moshi.Moshi
@@ -40,6 +41,12 @@ object ApplicationModule {
     fun provideNotesDao(
         notesDatabase: NotesDatabase
     ): NotesDao = notesDatabase.notesDao()
+
+    @Singleton
+    @Provides
+    fun provideWorkManager(
+        @ApplicationContext appContext: Context
+    ): WorkManager = WorkManager.getInstance(appContext)
 
     @Singleton
     @Provides

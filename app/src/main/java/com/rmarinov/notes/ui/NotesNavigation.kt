@@ -1,6 +1,5 @@
 package com.rmarinov.notes.ui
 
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 
 object NotesDestinations {
@@ -9,13 +8,7 @@ object NotesDestinations {
 }
 
 class NotesNavigationActions(navController: NavHostController) {
-    val navigateToNote: (noteId: Int) -> Unit = { noteId ->
-        navController.navigate("${NotesDestinations.NOTE_ROUTE}/$noteId") {
-            popUpTo(navController.graph.findStartDestination().id) {
-                saveState = true
-            }
-            launchSingleTop = true
-            restoreState = true
-        }
+    val navigateToNote: (noteId: Long) -> Unit = { noteId ->
+        navController.navigate("${NotesDestinations.NOTE_ROUTE}/$noteId")
     }
 }

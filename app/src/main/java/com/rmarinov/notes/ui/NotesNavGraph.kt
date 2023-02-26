@@ -8,13 +8,15 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.rmarinov.notes.ui.composables.AppBarState
 
 @Composable
 fun NotesNavGraph(
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
     startDestination: String = NotesDestinations.NOTES_ROUTE,
-    navigateToNote: (Int) -> Unit
+    navigateToNote: (Long) -> Unit,
+    onComposing: (AppBarState) -> Unit
 ) {
     NavHost(
         navController = navController,
@@ -22,17 +24,24 @@ fun NotesNavGraph(
         modifier = modifier
     ) {
         composable(NotesDestinations.NOTES_ROUTE) {
-            NotesRoute(navigateToNote = navigateToNote)
+            NotesRoute(
+                navigateToNote = navigateToNote,
+                onComposing = onComposing
+            )
         }
 
         composable(
             route = "${NotesDestinations.NOTE_ROUTE}/{noteId}",
-            arguments = listOf(navArgument("noteId") { type = NavType.IntType })
+            arguments = listOf(navArgument("noteId") { type = NavType.LongType })
         ) { backStackEntry ->
-            val noteId = backStackEntry.arguments?.getInt("noteId")
+            val noteId = backStackEntry.arguments?.getLong("noteId")
                 ?: throw IllegalStateException("Note opened without note id.")
 
-            NoteRoute(noteId = noteId)
+            NoteRoute(
+                selectedNoteId = noteId,
+                close = { navController.popBackStack() },
+                onComposing = onComposing
+            )
         }
     }
 }
