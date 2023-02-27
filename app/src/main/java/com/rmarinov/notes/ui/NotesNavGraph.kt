@@ -38,7 +38,7 @@ fun NotesNavGraph(
 
             NoteRoute(
                 selectedNoteId = noteId,
-                close = { navController.popBackStack() },
+                navigateBack = { navController.popBackStack() },
                 onComposing = onComposing
             )
         }

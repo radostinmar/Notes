@@ -12,6 +12,7 @@ import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
@@ -24,19 +25,21 @@ import com.rmarinov.notes.R
 @Composable
 fun NoteRoute(
     onComposing: (ScaffoldState) -> Unit,
-    close: () -> Unit,
+    navigateBack: () -> Unit,
     selectedNoteId: Long,
     noteViewModel: NoteViewModel = hiltViewModel()
 ) {
-    noteViewModel.close.observe(LocalLifecycleOwner.current, EventObserver { close() })
+    noteViewModel.navigateBack.observe(
+        LocalLifecycleOwner.current,
+        EventObserver { navigateBack() }
+    )
 
     val appBarTitle = stringResource(R.string.edit_note)
 
-    val isNoteEmpty = noteViewModel.title.value.isEmpty()
-            && noteViewModel.content.value.isEmpty()
+    val note = noteViewModel.note.collectAsState().value
 
-    BackHandler(enabled = isNoteEmpty && noteViewModel.isNewNote.value) {
-        noteViewModel.onBackClickedWithEmptyNote()
+    BackHandler {
+        noteViewModel.onBackClicked()
     }
 
     LaunchedEffect(key1 = selectedNoteId) {
@@ -71,36 +74,51 @@ fun NoteRoute(
         ) {
             val (title, text) = createRefs()
             OutlinedTextField(
+                placeholder = {
+                    Text(
+                        text = stringResource(R.string.title),
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                },
                 colors = TextFieldDefaults.outlinedTextFieldColors(
                     containerColor = MaterialTheme.colorScheme.secondaryContainer,
                     textColor = MaterialTheme.colorScheme.onSecondaryContainer,
                     unfocusedBorderColor = MaterialTheme.colorScheme.secondary
                 ),
-                value = noteViewModel.title.value,
+                value = note.title,
                 modifier = Modifier.constrainAs(title) {
-                    start.linkTo(anchor = parent.start, margin = 16.dp)
-                    end.linkTo(anchor = parent.end, margin = 16.dp)
-                    top.linkTo(anchor = parent.top, margin = 16.dp)
+                    start.linkTo(anchor = parent.start, margin = 12.dp)
+                    end.linkTo(anchor = parent.end, margin = 12.dp)
+                    top.linkTo(anchor = parent.top, margin = 12.dp)
                     width = Dimension.fillToConstraints
                     height = Dimension.wrapContent
                 },
+                textStyle = MaterialTheme.typography.titleLarge,
                 onValueChange = { value -> noteViewModel.onTitleChanged(value) }
             )
-            OutlinedTextField(colors = TextFieldDefaults.outlinedTextFieldColors(
-                containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                textColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                unfocusedBorderColor = MaterialTheme.colorScheme.secondary
-            ),
-                value = noteViewModel.content.value,
+            OutlinedTextField(
+                placeholder = {
+                    Text(
+                        text = stringResource(R.string.note),
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                },
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    textColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.secondary
+                ),
+                value = note.content,
                 minLines = 10,
                 modifier = Modifier.constrainAs(text) {
-                    start.linkTo(anchor = parent.start, margin = 16.dp)
-                    end.linkTo(anchor = parent.end, margin = 16.dp)
-                    top.linkTo(title.bottom, margin = 16.dp)
-                    bottom.linkTo(parent.bottom, margin = 16.dp)
+                    start.linkTo(anchor = parent.start, margin = 12.dp)
+                    end.linkTo(anchor = parent.end, margin = 12.dp)
+                    top.linkTo(title.bottom, margin = 12.dp)
+                    bottom.linkTo(parent.bottom, margin = 12.dp)
                     width = Dimension.fillToConstraints
                     height = Dimension.wrapContent
                 },
+                textStyle = MaterialTheme.typography.bodyLarge,
                 onValueChange = { value -> noteViewModel.onContentChanged(value) })
         }
     }

@@ -1,6 +1,9 @@
 <resources>
     <string name="notes">Notes</string>
+    <string name="note">Note</string>
     <string name="add_note">Add note</string>
     <string name="delete_note">Delete note</string>
+    <string name="delete_notes">Delete selected notes</string>
     <string name="edit_note">Edit note</string>
+    <string name="title">Title</string>
 </resources>

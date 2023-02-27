@@ -15,11 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -33,7 +29,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.rmarinov.notes.R
-import com.rmarinov.notes.data.db.model.Note
+import com.rmarinov.notes.ui.model.NoteUiModel
 
 @Composable
 fun NotesRoute(
@@ -48,7 +44,7 @@ fun NotesRoute(
 
     val notesRouteConfig = notesViewModel
         .notesRouteConfig
-        .observeAsState(NotesRouteConfig(emptyList(), emptySet()))
+        .collectAsState(NotesRouteConfig(emptyList(), emptySet()))
         .value
 
     val selectedNotes = notesRouteConfig.selectedNotes
@@ -74,7 +70,7 @@ fun NotesRoute(
                         IconButton(onClick = { notesViewModel.onDeleteClicked(selectedNotes) }) {
                             Icon(
                                 imageVector = Icons.Outlined.Delete,
-                                contentDescription = stringResource(R.string.delete_note)
+                                contentDescription = stringResource(R.string.delete_notes)
                             )
                         }
                     }
@@ -109,7 +105,7 @@ fun NotesRoute(
                     height = Dimension.fillToConstraints
                 }
         ) {
-            items(notesRouteConfig.notes, key = Note::id) { note ->
+            items(notesRouteConfig.notes, key = NoteUiModel::id) { note ->
                 NoteItem(
                     note = note,
                     onClick = { notesViewModel.onNoteClicked(note) },
@@ -160,7 +156,7 @@ fun NotesRoute(
 
 @Composable
 fun NoteItem(
-    note: Note,
+    note: NoteUiModel,
     onClick: () -> Unit,
     onLongClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -197,17 +193,16 @@ fun NoteItem(
         shape = RoundedCornerShape(size = 4.dp)
     ) {
         Text(
-            text = note.title.takeIf { it.isNotBlank() }
-                ?: note.content.substringBefore("\n"),
+            text = note.title.takeUnless { it.isEmpty() } ?: note.content,
             modifier = Modifier.padding(all = 16.dp),
             maxLines = 5,
             overflow = TextOverflow.Ellipsis,
-            style = MaterialTheme.typography.headlineSmall
+            style = MaterialTheme.typography.titleLarge
         )
     }
 }
 
 data class NotesRouteConfig(
-    val notes: List<Note>,
+    val notes: List<NoteUiModel>,
     val selectedNotes: Set<Long>
 )
